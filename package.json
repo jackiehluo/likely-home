@@ -1,0 +1,31 @@
+{
+  "name": "likely-home",
+  "version": "0.2.8",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "postinstall": "wxt prepare",
+    "dev": "wxt",
+    "build": "wxt build",
+    "store:assets": "bun scripts/render-store-assets.ts",
+    "test:browser": "bun tests/browser-smoke.ts",
+    "verify:release": "bun scripts/verify-release.ts",
+    "zip": "wxt zip",
+    "typecheck": "tsc --noEmit",
+    "test": "bun test"
+  },
+  "dependencies": {
+    "@wxt-dev/module-react": "latest",
+    "react": "latest",
+    "react-dom": "latest",
+    "wxt": "latest",
+    "zod": "latest"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.4.2",
+    "@types/react": "latest",
+    "@types/react-dom": "latest",
+    "playwright": "^1.63.0",
+    "typescript": "latest"
+  }
+}

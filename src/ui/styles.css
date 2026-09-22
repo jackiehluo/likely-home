@@ -1,0 +1,75 @@
+:host { color: #111; font-family: Arial, Helvetica, sans-serif; font-size: 14px; }
+* { box-sizing: border-box; }
+button, input { font: inherit; }
+.lh-backdrop { position: fixed; inset: 0; z-index: 2147483647; background: rgb(0 0 0 / 10%); }
+.lh-panel { position: absolute; top: 12px; right: 12px; display: flex; width: min(360px, calc(100vw - 24px)); height: min(480px, calc(100vh - 24px)); min-width: 300px; max-width: calc(100vw - 24px); max-height: calc(100vh - 24px); flex-direction: column; overflow: clip; border: 1px solid #b8b8b8; background: #fff; box-shadow: 0 8px 30px rgb(0 0 0 / 18%); }
+.lh-panel.has-error { height: auto; }
+.lh-header, .lh-footer, .lh-capture, .lh-search-wrap { display: flex; align-items: center; }
+.lh-header, .lh-footer, .lh-capture, .lh-search-wrap { flex: 0 0 auto; }
+.lh-header { min-height: 44px; justify-content: space-between; padding: 0 8px 0 14px; border-bottom: 1px solid #d8d8d8; }
+.lh-brand-icon { display: block; width: 28px; height: 28px; }
+.lh-header-actions { display: flex; gap: 2px; }
+.lh-icon-button, .lh-text-button { border: 0; background: transparent; color: #111; cursor: pointer; }
+.lh-icon-button { width: 30px; height: 30px; padding: 0; color: #555; font-weight: 400; line-height: 1; }
+.lh-preferences-button { font-size: 20px; }
+.lh-close-button { font-size: 18px; }
+.lh-icon-button:hover, .lh-text-button:hover { background: #f0f0f0; }
+.lh-capture { min-height: 62px; justify-content: space-between; gap: 12px; padding: 10px 14px; border-bottom: 1px solid #d8d8d8; }
+.lh-capture-copy { display: grid; min-width: 0; gap: 3px; }
+.lh-capture-title { overflow: hidden; font-size: 14px; line-height: 1.25; white-space: nowrap; text-overflow: ellipsis; }
+.lh-capture-url { overflow: hidden; color: #777; font-size: 12px; white-space: nowrap; text-overflow: ellipsis; }
+.lh-capture-type { flex: none; border: 1px solid #bbb; padding: 4px 7px; color: #555; font-size: 10px; text-transform: uppercase; letter-spacing: .04em; }
+.lh-search-wrap { position: relative; margin: 10px; border: 1px solid #aaa; background: #fff; }
+.lh-search-icon { width: 30px; color: #555; font-size: 17px; text-align: center; }
+.lh-search { width: 100%; height: 34px; border: 0; outline: 0; padding: 0 8px 0 0; background: transparent; color: #111; }
+.lh-search::placeholder { color: #777; }
+.lh-channels { min-height: 0; flex: 1 1 0; overflow: auto; border-top: 1px solid #d8d8d8; background: #fff; }
+.lh-create-trigger { width: 100%; min-height: 40px; border: 0; border-bottom: 1px solid #e7e7e7; background: #fff; color: #111; cursor: pointer; padding: 0 14px; text-align: left; }
+.lh-create-trigger:hover { background: #f5f5f5; }
+.lh-create-form { display: grid; gap: 9px; padding: 12px 14px; border-bottom: 1px solid #d8d8d8; background: #f7f7f4; }
+.lh-create-title { width: 100%; height: 34px; border: 1px solid #999; border-radius: 0; outline: 0; background: #fff; padding: 0 9px; }
+.lh-create-title:focus { border-color: #111; }
+.lh-visibility { display: flex; gap: 4px; }
+.lh-visibility label { flex: 1; border: 1px solid #bbb; background: #fff; cursor: pointer; padding: 5px 4px; color: #555; font-size: 11px; text-align: center; }
+.lh-visibility label.is-selected { border-color: #111; background: #111; color: #fff; }
+.lh-visibility input { position: absolute; opacity: 0; pointer-events: none; }
+.lh-create-actions { display: flex; justify-content: flex-end; gap: 6px; }
+.lh-create-actions .lh-text-button, .lh-small-primary { min-height: 30px; padding: 0 10px; }
+.lh-small-primary { border: 1px solid #111; border-radius: 0; background: #111; color: #fff; cursor: pointer; }
+.lh-small-primary:disabled { border-color: #bbb; background: #bbb; cursor: default; }
+.lh-channel { display: flex; min-height: 42px; align-items: center; gap: 10px; padding: 7px 14px; border-bottom: 1px solid #e7e7e7; cursor: pointer; }
+.lh-channel:hover { background: #f5f5f5; }
+.lh-channel.is-selected { background: #eeeeea; }
+.lh-channel input { position: absolute; opacity: 0; pointer-events: none; }
+.lh-check { display: grid; width: 18px; height: 18px; flex: none; place-items: center; border: 1px solid #888; color: #fff; font-size: 11px; }
+.lh-channel.is-selected .lh-check { border-color: #111; background: #111; }
+.lh-channel-title { min-width: 0; overflow: hidden; line-height: 1.2; white-space: nowrap; text-overflow: ellipsis; }
+.lh-empty { padding: 26px 14px; color: #777; text-align: center; }
+.lh-error-state { padding: 24px 14px; line-height: 1.4; text-align: center; }
+.lh-error-state p { margin: 0 0 10px; overflow-wrap: anywhere; }
+.lh-error-state .lh-text-button { padding: 6px 10px; text-decoration: underline; }
+.lh-footer { min-height: 52px; justify-content: flex-end; padding: 8px 10px; border-top: 1px solid #cfcfcf; }
+.lh-primary { min-width: 96px; min-height: 36px; border: 1px solid #111; border-radius: 0; background: #111; color: #fff; cursor: pointer; padding: 0 14px; }
+.lh-primary:disabled { border-color: #c5c5c5; background: #c5c5c5; cursor: default; }
+.lh-auth { display: grid; gap: 14px; justify-items: center; margin: auto; padding: 48px 34px; text-align: center; }
+.lh-auth p { margin: 0 0 4px; color: #555; line-height: 1.45; }
+.lh-auth .lh-text-button { padding: 6px 10px; text-decoration: underline; }
+.lh-jev { display: grid; gap: 18px; margin: auto 0; padding: 34px 28px; }
+.lh-jev h2 { margin: 0 0 7px; font-size: 20px; letter-spacing: -.035em; }
+.lh-jev p { margin: 0; color: #666; line-height: 1.4; }
+.lh-jev label { display: grid; gap: 6px; }
+.lh-jev label span { color: #555; font-size: 11px; text-transform: uppercase; letter-spacing: .05em; }
+.lh-jev input { width: 100%; height: 38px; border: 1px solid #999; border-radius: 0; outline: 0; padding: 0 9px; }
+.lh-jev input:focus { border-color: #111; }
+.lh-jev-actions { display: flex; align-items: center; justify-content: flex-end; gap: 8px; }
+.lh-jev-actions .lh-text-button { min-height: 36px; padding: 0 10px; }
+.lh-key-help { justify-self: start; padding: 2px 0; color: #666; text-decoration: underline; }
+.lh-setup-error { color: #a32618 !important; font-size: 12px; }
+@media (max-width: 520px) { .lh-panel { inset: 0; width: 100vw; height: 100vh; min-width: 0; max-width: none; max-height: none; resize: none; border: 0; } }
+@media (max-height: 360px) {
+  .lh-header { min-height: 38px; }
+  .lh-brand-icon { width: 25px; height: 25px; }
+  .lh-capture { min-height: 46px; padding: 6px 12px; }
+  .lh-search-wrap { margin: 6px 8px; }
+  .lh-footer { min-height: 42px; padding: 4px 8px; }
+}
