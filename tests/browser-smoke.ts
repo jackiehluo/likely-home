@@ -50,7 +50,35 @@ try {
   await page.getByRole("button", { name: "Close" }).click();
 
   await context.route("https://api.are.na/**", async (route) => {
-    if (route.request().method() === "POST" && route.request().url().endsWith("/v3/channels")) {
+    const request = route.request();
+    const url = new URL(request.url());
+    if (request.method() === "GET" && url.pathname === "/v3/me") {
+      await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ id: 42, slug: "smoke-user" }) });
+      return;
+    }
+    if (request.method() === "GET" && url.pathname === "/v3/users/42/contents") {
+      const pageNumber = Number(url.searchParams.get("page"));
+      const allChannels = [
+        { id: 7, slug: "reading", title: "Reading", description: { plain: "Things to read" }, visibility: "private", can: { add_to: true } },
+        { id: 8, slug: "references", title: "References", description: { plain: "Visual research" }, visibility: "public", can: { add_to: true } },
+        ...Array.from({ length: 24 }, (_, index) => ({
+          id: 100 + index,
+          slug: `overflow-${index}`,
+          title: `Overflow channel ${index}`,
+          description: { plain: "" },
+          visibility: "closed",
+          can: { add_to: true },
+        })),
+      ];
+      const data = pageNumber === 1 ? allChannels.slice(0, 24) : allChannels.slice(24);
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({ data, meta: { current_page: pageNumber, total_pages: 2 } }),
+      });
+      return;
+    }
+    if (request.method() === "POST" && url.pathname === "/v3/channels") {
       const body = route.request().postDataJSON();
       if (body.title !== "Shared references" || body.visibility !== "public") {
         throw new Error(`Wrong channel creation body: ${JSON.stringify(body)}`);
@@ -65,21 +93,7 @@ try {
     await route.fulfill({ status: 504, contentType: "text/html", body: "<!doctype html><title>504 Gateway time-out</title>" });
   });
   await worker.evaluate(`chrome.storage.local.set({
-    arenaAccessToken: "smoke-token",
-    arenaChannelCache: {
-      fetchedAt: Date.now() - 25 * 60 * 60 * 1000,
-      channels: [
-        { id: 7, slug: "reading", title: "Reading", description: "Things to read", visibility: "private" },
-        { id: 8, slug: "references", title: "References", description: "Visual research", visibility: "public" },
-        ...Array.from({ length: 24 }, (_, index) => ({
-          id: 100 + index,
-          slug: "overflow-" + index,
-          title: "Overflow channel " + index,
-          description: "",
-          visibility: "closed"
-        }))
-      ]
-    }
+    arenaAccessToken: "smoke-token"
   })`);
   await worker.evaluate(`(async () => {
     const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
@@ -148,7 +162,7 @@ try {
   await mkdir(resolve("work/verification"), { recursive: true });
   await page.screenshot({ path: evidencePath });
   await optionsPage.screenshot({ path: optionsEvidencePath, fullPage: true });
-  console.log("browser smoke passed: signed-out state, cached 504 recovery, channel creation, compact capture, and minimal setup page rendered");
+  console.log("browser smoke passed: onboarding, fresh v3 channel pagination, channel creation, compact capture, and Jev-only help rendered");
 } finally {
   await context.close();
   server.close();
