@@ -1,0 +1,4 @@
+ARENA_CLIENT_ID = GNmTpigzgeHhxPsDET0g1U6z5VvklF3v-85UOk6pS4c
+DEVELOPMENT_TEAM = 3LDPX93GDT
+APP_GROUP_ID = group.com.jackieluo.likelyhome
+KEYCHAIN_GROUP_ID = $(AppIdentifierPrefix)com.jackieluo.likelyhome.shared

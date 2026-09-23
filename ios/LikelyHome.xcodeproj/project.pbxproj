@@ -1,0 +1,539 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		2881D6F2D00A37A4CE7BA47B /* AppGroup.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76CABB4356F1EFE98C64582C /* AppGroup.swift */; };
+		2A6E5AB2A9E36B026F6058FB /* AppGroup.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76CABB4356F1EFE98C64582C /* AppGroup.swift */; };
+		37B9AD79A63008163C0B2268 /* HouseMark.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED59B75EBD3B5B416AD44AFE /* HouseMark.swift */; };
+		53F0BA33CBCBD55518D3A86E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 89D1B6442E10DCC0D8FA5FB9 /* Assets.xcassets */; };
+		5B3B7BCB0E82D3968B278069 /* HouseMark.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED59B75EBD3B5B416AD44AFE /* HouseMark.swift */; };
+		711E5EA7CC3E8157FDF2446E /* LikelyHomeShare.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 3FD9CE1137B732470096C528 /* LikelyHomeShare.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		9FC4E793BD28090A05FD836F /* LikelyHomeCore in Frameworks */ = {isa = PBXBuildFile; productRef = 78B090296235ADD07D5694DB /* LikelyHomeCore */; };
+		AB68142D06EF5A84AB78D82D /* LikelyHomeCore in Frameworks */ = {isa = PBXBuildFile; productRef = 77C5192A1BCA2C9DD3AD8D3D /* LikelyHomeCore */; };
+		B138E099777D67C8306DC978 /* SafariPreprocessing.js in Resources */ = {isa = PBXBuildFile; fileRef = 691F18A8C442A5FC46D8203B /* SafariPreprocessing.js */; };
+		BEA0E68A5BC1667429B488B4 /* LikelyHomeApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 778BE59BDA49AE7DCCA4E4C3 /* LikelyHomeApp.swift */; };
+		DD4F15D041F89F032CB0CB4D /* ShareViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5621640FD427DAA7377A162E /* ShareViewController.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		55B7882E5E89598A14BCFF92 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 0AA3DD7ABB787591CB7327FF /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 347F6C1BE7E8D31D68775E29;
+			remoteInfo = LikelyHomeShare;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		03EDC93413425F53FF8D43F6 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				711E5EA7CC3E8157FDF2446E /* LikelyHomeShare.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		02C5ED50D5C630A4B237F901 /* LikelyHome.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = LikelyHome.entitlements; sourceTree = "<group>"; };
+		1CC2E55FB8D1F347AAC4BB53 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		3FD9CE1137B732470096C528 /* LikelyHomeShare.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = LikelyHomeShare.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		5621640FD427DAA7377A162E /* ShareViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareViewController.swift; sourceTree = "<group>"; };
+		691F18A8C442A5FC46D8203B /* SafariPreprocessing.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = SafariPreprocessing.js; sourceTree = "<group>"; };
+		69255BF5F12E4B0D030E6215 /* Config.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Config.xcconfig; sourceTree = "<group>"; };
+		76CABB4356F1EFE98C64582C /* AppGroup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppGroup.swift; sourceTree = "<group>"; };
+		778BE59BDA49AE7DCCA4E4C3 /* LikelyHomeApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LikelyHomeApp.swift; sourceTree = "<group>"; };
+		89D1B6442E10DCC0D8FA5FB9 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		CD74BF67606E9441E9B4BEE7 /* LikelyHomeCore */ = {isa = PBXFileReference; lastKnownFileType = folder; name = LikelyHomeCore; path = Packages/LikelyHomeCore; sourceTree = SOURCE_ROOT; };
+		D11466DFED84D974847D4785 /* LikelyHome.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = LikelyHome.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		D40F9ADFB204CE68F1FCBBF2 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		E0663D2A3860B4C186898BF7 /* LikelyHomeShare.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = LikelyHomeShare.entitlements; sourceTree = "<group>"; };
+		ED59B75EBD3B5B416AD44AFE /* HouseMark.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HouseMark.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		0583D231202652A01D8698B1 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9FC4E793BD28090A05FD836F /* LikelyHomeCore in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		82A5E67EC3C4C4017056B4F4 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AB68142D06EF5A84AB78D82D /* LikelyHomeCore in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		1CCAD128CA23BBC9E237BE2C /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				D11466DFED84D974847D4785 /* LikelyHome.app */,
+				3FD9CE1137B732470096C528 /* LikelyHomeShare.appex */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		46288DB4427F9E7003F24084 /* Packages */ = {
+			isa = PBXGroup;
+			children = (
+				CD74BF67606E9441E9B4BEE7 /* LikelyHomeCore */,
+			);
+			path = Packages;
+			sourceTree = "<group>";
+		};
+		8126F13FE4B494C39C95A48D /* App */ = {
+			isa = PBXGroup;
+			children = (
+				89D1B6442E10DCC0D8FA5FB9 /* Assets.xcassets */,
+				1CC2E55FB8D1F347AAC4BB53 /* Info.plist */,
+				02C5ED50D5C630A4B237F901 /* LikelyHome.entitlements */,
+				778BE59BDA49AE7DCCA4E4C3 /* LikelyHomeApp.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		993939F8CABC4B816273500C /* ios */ = {
+			isa = PBXGroup;
+			children = (
+				69255BF5F12E4B0D030E6215 /* Config.xcconfig */,
+			);
+			name = ios;
+			path = .;
+			sourceTree = "<group>";
+		};
+		BA4D4EFD14381309440AEC6D /* ShareExtension */ = {
+			isa = PBXGroup;
+			children = (
+				D40F9ADFB204CE68F1FCBBF2 /* Info.plist */,
+				E0663D2A3860B4C186898BF7 /* LikelyHomeShare.entitlements */,
+				691F18A8C442A5FC46D8203B /* SafariPreprocessing.js */,
+				5621640FD427DAA7377A162E /* ShareViewController.swift */,
+			);
+			path = ShareExtension;
+			sourceTree = "<group>";
+		};
+		C5F12D7CE787C568F77488EE /* Shared */ = {
+			isa = PBXGroup;
+			children = (
+				76CABB4356F1EFE98C64582C /* AppGroup.swift */,
+				ED59B75EBD3B5B416AD44AFE /* HouseMark.swift */,
+			);
+			path = Shared;
+			sourceTree = "<group>";
+		};
+		F8CA4FA6C58947E7F65AF7DC = {
+			isa = PBXGroup;
+			children = (
+				8126F13FE4B494C39C95A48D /* App */,
+				993939F8CABC4B816273500C /* ios */,
+				46288DB4427F9E7003F24084 /* Packages */,
+				C5F12D7CE787C568F77488EE /* Shared */,
+				BA4D4EFD14381309440AEC6D /* ShareExtension */,
+				1CCAD128CA23BBC9E237BE2C /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		347F6C1BE7E8D31D68775E29 /* LikelyHomeShare */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 5F070851E1228B0C1FFB6E80 /* Build configuration list for PBXNativeTarget "LikelyHomeShare" */;
+			buildPhases = (
+				4559DF0FBE8F0531620C5906 /* Sources */,
+				E32105447B0BD487F797D711 /* Resources */,
+				0583D231202652A01D8698B1 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = LikelyHomeShare;
+			packageProductDependencies = (
+				78B090296235ADD07D5694DB /* LikelyHomeCore */,
+			);
+			productName = LikelyHomeShare;
+			productReference = 3FD9CE1137B732470096C528 /* LikelyHomeShare.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+		CAB39E8E84C0793E4BA8764E /* LikelyHome */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C773FD7CDA4A762B8903AD74 /* Build configuration list for PBXNativeTarget "LikelyHome" */;
+			buildPhases = (
+				1746E368AEAE89AE3DE1C485 /* Sources */,
+				7E2BA6673361452529F41AC7 /* Resources */,
+				82A5E67EC3C4C4017056B4F4 /* Frameworks */,
+				03EDC93413425F53FF8D43F6 /* Embed Foundation Extensions */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				D97A1DFF03DDD5D836242E3B /* PBXTargetDependency */,
+			);
+			name = LikelyHome;
+			packageProductDependencies = (
+				77C5192A1BCA2C9DD3AD8D3D /* LikelyHomeCore */,
+			);
+			productName = LikelyHome;
+			productReference = D11466DFED84D974847D4785 /* LikelyHome.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		0AA3DD7ABB787591CB7327FF /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+					347F6C1BE7E8D31D68775E29 = {
+						DevelopmentTeam = 3LDPX93GDT;
+						ProvisioningStyle = Automatic;
+					};
+					CAB39E8E84C0793E4BA8764E = {
+						DevelopmentTeam = 3LDPX93GDT;
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = 42632F3F8BD856526B66E19D /* Build configuration list for PBXProject "LikelyHome" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = F8CA4FA6C58947E7F65AF7DC;
+			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				ED6418768CBE486AEB39B12C /* XCLocalSwiftPackageReference "Packages/LikelyHomeCore" */,
+			);
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 1CCAD128CA23BBC9E237BE2C /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				CAB39E8E84C0793E4BA8764E /* LikelyHome */,
+				347F6C1BE7E8D31D68775E29 /* LikelyHomeShare */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		7E2BA6673361452529F41AC7 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				53F0BA33CBCBD55518D3A86E /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E32105447B0BD487F797D711 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B138E099777D67C8306DC978 /* SafariPreprocessing.js in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		1746E368AEAE89AE3DE1C485 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2A6E5AB2A9E36B026F6058FB /* AppGroup.swift in Sources */,
+				37B9AD79A63008163C0B2268 /* HouseMark.swift in Sources */,
+				BEA0E68A5BC1667429B488B4 /* LikelyHomeApp.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4559DF0FBE8F0531620C5906 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2881D6F2D00A37A4CE7BA47B /* AppGroup.swift in Sources */,
+				5B3B7BCB0E82D3968B278069 /* HouseMark.swift in Sources */,
+				DD4F15D041F89F032CB0CB4D /* ShareViewController.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		D97A1DFF03DDD5D836242E3B /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 347F6C1BE7E8D31D68775E29 /* LikelyHomeShare */;
+			targetProxy = 55B7882E5E89598A14BCFF92 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		1214D2C64115B87E3DB6111E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 69255BF5F12E4B0D030E6215 /* Config.xcconfig */;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = ShareExtension/LikelyHomeShare.entitlements;
+				INFOPLIST_FILE = ShareExtension/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.jackieluo.likelyhome.share;
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		45AB8B9FB163AAA2D32B7A32 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 0.1.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 6.0;
+			};
+			name = Release;
+		};
+		5CF2FBA065CC275E422F6D11 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 69255BF5F12E4B0D030E6215 /* Config.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = App/LikelyHome.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				INFOPLIST_FILE = App/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.jackieluo.likelyhome;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		7CD5F37504DD899F6A5565C0 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 69255BF5F12E4B0D030E6215 /* Config.xcconfig */;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = ShareExtension/LikelyHomeShare.entitlements;
+				INFOPLIST_FILE = ShareExtension/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.jackieluo.likelyhome.share;
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		A2E5045B71B89C434D2015FE /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 0.1.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 6.0;
+			};
+			name = Debug;
+		};
+		EC2899AEAD93D73099C31330 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 69255BF5F12E4B0D030E6215 /* Config.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = App/LikelyHome.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				INFOPLIST_FILE = App/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.jackieluo.likelyhome;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		42632F3F8BD856526B66E19D /* Build configuration list for PBXProject "LikelyHome" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A2E5045B71B89C434D2015FE /* Debug */,
+				45AB8B9FB163AAA2D32B7A32 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		5F070851E1228B0C1FFB6E80 /* Build configuration list for PBXNativeTarget "LikelyHomeShare" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1214D2C64115B87E3DB6111E /* Debug */,
+				7CD5F37504DD899F6A5565C0 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		C773FD7CDA4A762B8903AD74 /* Build configuration list for PBXNativeTarget "LikelyHome" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				5CF2FBA065CC275E422F6D11 /* Debug */,
+				EC2899AEAD93D73099C31330 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		ED6418768CBE486AEB39B12C /* XCLocalSwiftPackageReference "Packages/LikelyHomeCore" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = Packages/LikelyHomeCore;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		77C5192A1BCA2C9DD3AD8D3D /* LikelyHomeCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = LikelyHomeCore;
+		};
+		78B090296235ADD07D5694DB /* LikelyHomeCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = LikelyHomeCore;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = 0AA3DD7ABB787591CB7327FF /* Project object */;
+}

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0"><dict>
+  <key>CFBundleIdentifier</key><string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+  <key>CFBundleExecutable</key><string>$(EXECUTABLE_NAME)</string>
+  <key>CFBundlePackageType</key><string>XPC!</string>
+  <key>CFBundleName</key><string>$(PRODUCT_NAME)</string>
+  <key>CFBundleShortVersionString</key><string>$(MARKETING_VERSION)</string>
+  <key>CFBundleVersion</key><string>$(CURRENT_PROJECT_VERSION)</string>
+  <key>CFBundleDisplayName</key><string>Likely Home</string>
+  <key>KeychainAccessGroup</key><string>$(KEYCHAIN_GROUP_ID)</string>
+  <key>NSExtension</key><dict>
+    <key>NSExtensionPointIdentifier</key><string>com.apple.share-services</string>
+    <key>NSExtensionPrincipalClass</key><string>$(PRODUCT_MODULE_NAME).ShareViewController</string>
+    <key>NSExtensionAttributes</key><dict>
+      <key>NSExtensionJavaScriptPreprocessingFile</key><string>SafariPreprocessing.js</string>
+      <key>NSExtensionActivationRule</key><dict>
+        <key>NSExtensionActivationSupportsWebURLWithMaxCount</key><integer>1</integer>
+        <key>NSExtensionActivationSupportsText</key><true/>
+        <key>NSExtensionActivationSupportsImageWithMaxCount</key><integer>1</integer>
+        <key>NSExtensionActivationSupportsFileWithMaxCount</key><integer>1</integer>
+      </dict>
+    </dict>
+  </dict>
+</dict></plist>
