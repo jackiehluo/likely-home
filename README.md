@@ -1,8 +1,10 @@
 # Likely Home
 
-A Chrome extension for connecting pages, selected text, images, and existing Are.na blocks or channels to your Are.na channels. It uses TypeSafe Jev to move the likeliest destination channels to the top without blocking the normal capture flow.
+A Chrome extension and native iPhone Share Extension for connecting what you find to Are.na. TypeSafe Jev moves the likeliest channels to the top without blocking the normal capture flow.
 
-## Set up
+The Chrome extension lives at the repository root. The native iPhone app is in [`ios/`](ios/README.md).
+
+## Set up Chrome
 
 1. Install dependencies with `bun install`.
 2. Build with `bun run build`.
