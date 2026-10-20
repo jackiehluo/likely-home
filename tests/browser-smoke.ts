@@ -6,6 +6,7 @@ import { join, resolve } from "node:path";
 
 const extensionSourcePath = resolve(".output/chrome-mv3");
 const evidencePath = resolve("work/verification/browser-smoke.png");
+const errorEvidencePath = resolve("work/verification/save-error.png");
 const optionsEvidencePath = resolve("work/verification/options.png");
 const profile = await mkdtemp(join(tmpdir(), "likely-home-"));
 const server = createServer((_request, response) => {
@@ -90,6 +91,18 @@ try {
       });
       return;
     }
+    if (request.method() === "POST" && url.pathname === "/v3/blocks") {
+      const body = request.postDataJSON();
+      if (body.value !== pageUrl || body.channels?.length !== 2) {
+        throw new Error(`Wrong block creation body: ${JSON.stringify(body)}`);
+      }
+      await route.fulfill({
+        status: 404,
+        contentType: "application/json",
+        body: JSON.stringify({ error: "Not Found", code: 404 }),
+      });
+      return;
+    }
     await route.fulfill({ status: 504, contentType: "text/html", body: "<!doctype html><title>504 Gateway time-out</title>" });
   });
   await worker.evaluate(`chrome.storage.local.set({
@@ -162,7 +175,18 @@ try {
   await mkdir(resolve("work/verification"), { recursive: true });
   await page.screenshot({ path: evidencePath });
   await optionsPage.screenshot({ path: optionsEvidencePath, fullPage: true });
-  console.log("browser smoke passed: onboarding, fresh v3 channel pagination, channel creation, compact capture, and Jev-only help rendered");
+  await page.getByRole("button", { name: "Save to 2" }).click();
+  await page.getByText("Are.na returned 404: Not Found").waitFor({ state: "attached" });
+  const failedPanel = await page.getByRole("dialog", { name: "Connect to Are.na" }).boundingBox();
+  const visibleError = await page.getByText("Are.na returned 404: Not Found").boundingBox();
+  if (!failedPanel || failedPanel.height < 400 || !visibleError || visibleError.y < failedPanel.y || visibleError.y + visibleError.height > failedPanel.y + failedPanel.height) {
+    throw new Error(`A failed save hid its error or collapsed the picker: ${JSON.stringify({ failedPanel, visibleError })}`);
+  }
+  if (!(await readingRow.locator("input").isChecked()) || !(await createdRow.locator("input").isChecked())) {
+    throw new Error("A failed save lost the selected channels");
+  }
+  await page.screenshot({ path: errorEvidencePath });
+  console.log("browser smoke passed: onboarding, pagination, channel creation, compact capture, and visible save errors");
 } finally {
   await context.close();
   server.close();

@@ -32,6 +32,11 @@ export type Settings = Readonly<{
   jevApiKey: string;
 }>;
 
+export type CaptureError = Readonly<{
+  kind: "auth" | "channels" | "create" | "save";
+  message: string;
+}>;
+
 export type CaptureState = Readonly<{
   phase: "loading" | "ready" | "connecting" | "done";
   auth: "checking" | "required" | "connected";
@@ -44,7 +49,7 @@ export type CaptureState = Readonly<{
   query: string;
   requestId: number;
   ranking: "idle" | "pending" | "ranked" | "unavailable";
-  error: string | null;
+  error: CaptureError | null;
 }>;
 
 export type CaptureEvent =
@@ -57,7 +62,7 @@ export type CaptureEvent =
   | { type: "channel-created"; channel: Channel }
   | { type: "connect-requested" }
   | { type: "connect-succeeded" }
-  | { type: "failed"; message: string };
+  | { type: "failed"; error: CaptureError };
 
 export function initialCaptureState(target: CaptureTarget, context: PageContext): CaptureState {
   return {
@@ -116,7 +121,7 @@ export function transition(state: CaptureState, event: CaptureEvent): CaptureSta
     case "connect-succeeded":
       return { ...state, phase: "done" };
     case "failed":
-      return { ...state, phase: "ready", error: event.message };
+      return { ...state, phase: "ready", error: event.error };
     default: {
       const exhaustive: never = event;
       return exhaustive;

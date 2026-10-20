@@ -3,7 +3,6 @@
 button, input { font: inherit; }
 .lh-backdrop { position: fixed; inset: 0; z-index: 2147483647; background: rgb(0 0 0 / 10%); }
 .lh-panel { position: absolute; top: 12px; right: 12px; display: flex; width: min(360px, calc(100vw - 24px)); height: min(480px, calc(100vh - 24px)); min-width: 300px; max-width: calc(100vw - 24px); max-height: calc(100vh - 24px); flex-direction: column; overflow: clip; border: 1px solid #b8b8b8; background: #fff; box-shadow: 0 8px 30px rgb(0 0 0 / 18%); }
-.lh-panel.has-error { height: auto; }
 .lh-header, .lh-footer, .lh-capture, .lh-search-wrap { display: flex; align-items: center; }
 .lh-header, .lh-footer, .lh-capture, .lh-search-wrap { flex: 0 0 auto; }
 .lh-header { min-height: 44px; justify-content: space-between; padding: 0 8px 0 14px; border-bottom: 1px solid #d8d8d8; }
@@ -45,9 +44,9 @@ button, input { font: inherit; }
 .lh-channel.is-selected .lh-check { border-color: #111; background: #111; }
 .lh-channel-title { min-width: 0; overflow: hidden; line-height: 1.2; white-space: nowrap; text-overflow: ellipsis; }
 .lh-empty { padding: 26px 14px; color: #777; text-align: center; }
-.lh-error-state { padding: 24px 14px; line-height: 1.4; text-align: center; }
-.lh-error-state p { margin: 0 0 10px; overflow-wrap: anywhere; }
-.lh-error-state .lh-text-button { padding: 6px 10px; text-decoration: underline; }
+.lh-error-banner { display: flex; max-height: 90px; flex: 0 0 auto; align-items: center; justify-content: space-between; gap: 10px; overflow: auto; padding: 9px 14px; color: #9d2f20; font-size: 12px; line-height: 1.35; }
+.lh-error-banner span { overflow-wrap: anywhere; }
+.lh-error-banner .lh-text-button { flex: none; color: inherit; text-decoration: underline; }
 .lh-footer { min-height: 52px; justify-content: flex-end; padding: 8px 10px; border-top: 1px solid #cfcfcf; }
 .lh-primary { min-width: 96px; min-height: 36px; border: 1px solid #111; border-radius: 0; background: #111; color: #fff; cursor: pointer; padding: 0 14px; }
 .lh-primary:disabled { border-color: #c5c5c5; background: #c5c5c5; cursor: default; }

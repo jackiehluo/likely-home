@@ -27,8 +27,8 @@ export function CaptureOverlay({ capture, onClose }: Props) {
     const requestId = ++nextRequestId.current;
     dispatch({ type: "channels-requested", query, requestId });
     const response = await request({ type: "list-channels", query });
-    if (!response.ok) return dispatch({ type: "failed", message: response.message });
-    if (response.type !== "channels") return dispatch({ type: "failed", message: "Are.na returned an unexpected response." });
+    if (!response.ok) return dispatch({ type: "failed", error: { kind: "channels", message: response.message } });
+    if (response.type !== "channels") return dispatch({ type: "failed", error: { kind: "channels", message: "Are.na returned an unexpected response." } });
     dispatch({ type: "channels-loaded", channels: response.channels, requestId });
     const ranking = await request({ type: "rank-channels", context: capture.context, channels: response.channels });
     if (!ranking.ok || ranking.type !== "ranking" || !ranking.ranking) {
@@ -40,7 +40,7 @@ export function CaptureOverlay({ capture, onClose }: Props) {
 
   useEffect(() => {
     void request({ type: "get-status" }).then((response) => {
-      if (!response.ok) return dispatch({ type: "failed", message: response.message });
+      if (!response.ok) return dispatch({ type: "failed", error: { kind: "auth", message: response.message } });
       if (response.type !== "status") return;
       knownJevSetup.current = response.jevConfigured;
       dispatch({ type: "auth-resolved", connected: response.arenaConnected });
@@ -61,7 +61,7 @@ export function CaptureOverlay({ capture, onClose }: Props) {
 
   async function signIn() {
     const response = await request({ type: "authorize" });
-    if (!response.ok) return dispatch({ type: "failed", message: response.message });
+    if (!response.ok) return dispatch({ type: "failed", error: { kind: "auth", message: response.message } });
     dispatch({ type: "auth-resolved", connected: true });
     if (!knownJevSetup.current) {
       setOnboardingStep("jev");
@@ -105,11 +105,11 @@ export function CaptureOverlay({ capture, onClose }: Props) {
     const response = await request({ type: "create-channel", title: input.title, visibility: input.visibility });
     if (!response.ok) {
       setNewChannel(input);
-      return dispatch({ type: "failed", message: response.message });
+      return dispatch({ type: "failed", error: { kind: "create", message: response.message } });
     }
     if (response.type !== "channel-created") {
       setNewChannel(input);
-      return dispatch({ type: "failed", message: "Are.na returned an unexpected response." });
+      return dispatch({ type: "failed", error: { kind: "create", message: "Are.na returned an unexpected response." } });
     }
     if (searchTimer.current) clearTimeout(searchTimer.current);
     setSearchValue("");
@@ -120,8 +120,8 @@ export function CaptureOverlay({ capture, onClose }: Props) {
   async function connect() {
     dispatch({ type: "connect-requested" });
     const response = await request({ type: "connect", target: state.target, channelIds: [...state.selectedIds] });
-    if (!response.ok) return dispatch({ type: "failed", message: response.message });
-    if (response.type !== "connected") return dispatch({ type: "failed", message: "Are.na returned an unexpected response." });
+    if (!response.ok) return dispatch({ type: "failed", error: { kind: "save", message: response.message } });
+    if (response.type !== "connected") return dispatch({ type: "failed", error: { kind: "save", message: "Are.na returned an unexpected response." } });
     dispatch({ type: "connect-succeeded" });
     setTimeout(onClose, 900);
   }
@@ -130,7 +130,7 @@ export function CaptureOverlay({ capture, onClose }: Props) {
 
   return (
     <div className="lh-backdrop" role="presentation" onMouseDown={(event) => event.target === event.currentTarget && onClose()}>
-      <section className={`lh-panel${state.error ? " has-error" : ""}`} role="dialog" aria-modal="true" aria-label="Connect to Are.na">
+      <section className="lh-panel" role="dialog" aria-modal="true" aria-label="Connect to Are.na">
         <header className="lh-header">
           <svg className="lh-brand-icon" viewBox="0 0 512 512" role="img" aria-label="Likely Home on Are.na">
             <path fill="#1a1a1a" d="M8 216 256 10l248 206h-40v286H48V216H8Z" />
@@ -143,12 +143,13 @@ export function CaptureOverlay({ capture, onClose }: Props) {
         </header>
 
         {onboardingStep === "checking" ? (
-          <main className="lh-auth"><p>Getting things ready…</p></main>
+          <main className="lh-auth"><p role={state.error ? "alert" : undefined}>{state.error?.message ?? "Getting things ready…"}</p></main>
         ) : onboardingStep === "arena" ? (
           <main className="lh-auth">
             <p>Connect your Are.na account to see your channels.</p>
             <button className="lh-primary" onClick={() => void signIn()}>Continue with Are.na</button>
             <button className="lh-text-button" onClick={openOptions}>Settings</button>
+            {state.error?.kind === "auth" ? <p role="alert" className="lh-setup-error">{state.error.message}</p> : null}
           </main>
         ) : onboardingStep === "jev" ? (
           <main className="lh-jev">
@@ -179,6 +180,12 @@ export function CaptureOverlay({ capture, onClose }: Props) {
               <span className="lh-search-icon" aria-hidden="true">⌕</span>
               <input className="lh-search" type="search" placeholder="Search channels" value={searchValue} onChange={(event) => search(event.currentTarget.value)} autoFocus />
             </div>
+            {state.error ? (
+              <div className="lh-error-banner" role="alert">
+                <span>{state.error.message}</span>
+                {state.error.kind === "channels" ? <button className="lh-text-button" onClick={() => void loadChannels(state.query)}>Try again</button> : null}
+              </div>
+            ) : null}
             <main className="lh-channels">
               {newChannel.kind === "closed" ? (
                 <button className="lh-create-trigger" onClick={openChannelForm}>+ New channel</button>
@@ -227,7 +234,6 @@ export function CaptureOverlay({ capture, onClose }: Props) {
                 </label>
               ))}
               {state.phase !== "loading" && channels.length === 0 && !state.error && newChannel.kind === "closed" ? <p className="lh-empty">No matching channels.</p> : null}
-              {state.error ? <div className="lh-error-state"><p>{state.error}</p><button className="lh-text-button" onClick={() => void loadChannels(state.query)}>Try again</button></div> : null}
             </main>
             <footer className="lh-footer">
               <button className="lh-primary" disabled={state.selectedIds.size === 0 || state.phase === "connecting" || state.phase === "done"} onClick={() => void connect()}>

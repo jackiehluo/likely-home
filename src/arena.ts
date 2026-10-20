@@ -56,7 +56,10 @@ export async function arenaErrorMessage(response: Response): Promise<string> {
     const body: unknown = await response.json().catch(() => null);
     if (body && typeof body === "object") {
       const value = "message" in body ? body.message : "error" in body ? body.error : null;
-      if (typeof value === "string" && value.trim()) return value.trim().slice(0, 180);
+      if (typeof value === "string" && value.trim()) {
+        const message = value.trim().slice(0, 180);
+        return response.status === 404 && message === "Not Found" ? "Are.na returned 404: Not Found" : message;
+      }
     }
   }
 

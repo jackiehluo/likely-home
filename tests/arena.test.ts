@@ -18,6 +18,11 @@ describe("Are.na errors", () => {
     const response = Response.json({ message: "This channel is read-only." }, { status: 403 });
     expect(await arenaErrorMessage(response)).toBe("This channel is read-only.");
   });
+
+  test("includes the status when Are.na returns a generic not-found error", async () => {
+    const response = Response.json({ error: "Not Found", code: 404 }, { status: 404 });
+    expect(await arenaErrorMessage(response)).toBe("Are.na returned 404: Not Found");
+  });
 });
 
 describe("Are.na channel listing", () => {
