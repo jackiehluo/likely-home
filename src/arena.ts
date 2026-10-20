@@ -1,7 +1,7 @@
 import { z } from "zod";
 import type { CaptureTarget, Channel, ChannelVisibility } from "./domain";
 import { handleUnauthorized } from "./auth";
-import { addChannelToCache, getArenaToken, getChannelCache, setChannelCache } from "./settings";
+import { addChannelToCache, getArenaToken, getChannelCache, invalidateChannelCache, setChannelCache } from "./settings";
 
 const CHANNEL_PAGE_SIZE = 100;
 const CHANNEL_CACHE_TTL_MS = 24 * 60 * 60 * 1000;
@@ -31,6 +31,13 @@ const ChannelPageWire = z.object({
     total_pages: z.number().int().nonnegative(),
   }),
 }).passthrough();
+const ChannelAbilityWire = z.object({ can: z.object({ add_to: z.boolean() }) });
+
+class ArenaHttpError extends Error {
+  constructor(readonly status: number, message: string) {
+    super(message);
+  }
+}
 
 async function arenaFetch(path: string, init?: RequestInit): Promise<Response> {
   const token = await getArenaToken();
@@ -41,7 +48,7 @@ async function arenaFetch(path: string, init?: RequestInit): Promise<Response> {
   });
   if (response.status === 401) return handleUnauthorized();
   if (!response.ok) {
-    throw new Error(await arenaErrorMessage(response));
+    throw new ArenaHttpError(response.status, await arenaErrorMessage(response));
   }
   return response;
 }
@@ -184,6 +191,24 @@ export function blockBody(target: Exclude<CaptureTarget, { kind: "arena-block" |
   }
 }
 
+async function diagnoseMissingBlock(channelIds: readonly number[]): Promise<"unavailable-channel" | "available-channels" | "unknown"> {
+  const checks = await Promise.all(channelIds.map(async (id) => {
+    try {
+      const response = await arenaFetch(`/v3/channels/${id}`);
+      const result = ChannelAbilityWire.safeParse(await response.json());
+      return result.success ? result.data.can.add_to : null;
+    } catch (error) {
+      if (error instanceof ArenaHttpError && (error.status === 403 || error.status === 404)) return false;
+      return null;
+    }
+  }));
+  if (checks.includes(false)) {
+    await invalidateChannelCache();
+    return "unavailable-channel";
+  }
+  return checks.every((check) => check === true) ? "available-channels" : "unknown";
+}
+
 export async function connect(target: CaptureTarget, channelIds: readonly number[]): Promise<string> {
   if (channelIds.length === 0) throw new Error("Choose at least one channel.");
   if (channelIds.length > 20) throw new Error("Are.na accepts up to 20 channels at once.");
@@ -197,6 +222,14 @@ export async function connect(target: CaptureTarget, channelIds: readonly number
     await arenaFetch("/v3/connections", { method: "POST", body: JSON.stringify({ connectable_id: channel.id, connectable_type: "Channel", channels: channelIds.map((id) => ({ id })) }) });
     return target.sourceUrl;
   }
-  const block = BlockWire.parse(await (await arenaFetch("/v3/blocks", { method: "POST", body: JSON.stringify(blockBody(target, channelIds)) })).json());
-  return `https://www.are.na/block/${block.id}`;
+  try {
+    const block = BlockWire.parse(await (await arenaFetch("/v3/blocks", { method: "POST", body: JSON.stringify(blockBody(target, channelIds)) })).json());
+    return `https://www.are.na/block/${block.id}`;
+  } catch (error) {
+    if (!(error instanceof ArenaHttpError) || error.status !== 404) throw error;
+    const diagnosis = await diagnoseMissingBlock(channelIds);
+    if (diagnosis === "unavailable-channel") throw new Error("A selected channel is no longer available. Close and reopen the extension to refresh your channels.");
+    if (diagnosis === "available-channels") throw new Error(`Are.na could not create this ${target.kind === "link" ? "link" : "block"} (404). The selected channels are still available.`);
+    throw error;
+  }
 }

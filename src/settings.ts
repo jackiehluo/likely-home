@@ -60,6 +60,10 @@ export async function setChannelCache(channels: readonly Channel[], fetchedAt = 
   await browser.storage.local.set({ [CHANNEL_CACHE_KEY]: { fetchedAt, channels } });
 }
 
+export async function invalidateChannelCache(): Promise<void> {
+  await browser.storage.local.remove(CHANNEL_CACHE_KEY);
+}
+
 export async function addChannelToCache(channel: Channel): Promise<void> {
   const cached = await getChannelCache();
   if (!cached) return;

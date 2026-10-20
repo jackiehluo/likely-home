@@ -17,6 +17,9 @@ await new Promise<void>((resolveListen) => server.listen(0, "127.0.0.1", resolve
 const address = server.address();
 if (!address || typeof address === "string") throw new Error("Smoke server did not start");
 const pageUrl = `http://127.0.0.1:${address.port}/`;
+const checkedChannelIds: number[] = [];
+let channelUnavailable = false;
+let blockShouldSucceed = false;
 const extensionPath = join(profile, "extension");
 await cp(extensionSourcePath, extensionPath, { recursive: true });
 const manifestPath = join(extensionPath, "manifest.json");
@@ -96,10 +99,28 @@ try {
       if (body.value !== pageUrl || body.channels?.length !== 2) {
         throw new Error(`Wrong block creation body: ${JSON.stringify(body)}`);
       }
+      if (blockShouldSucceed) {
+        await route.fulfill({ status: 201, contentType: "application/json", body: JSON.stringify({ id: 987 }) });
+        return;
+      }
       await route.fulfill({
         status: 404,
         contentType: "application/json",
         body: JSON.stringify({ error: "Not Found", code: 404 }),
+      });
+      return;
+    }
+    if (request.method() === "GET" && url.pathname.startsWith("/v3/channels/")) {
+      const id = Number(url.pathname.split("/").at(-1));
+      checkedChannelIds.push(id);
+      if (channelUnavailable && id === 7) {
+        await route.fulfill({ status: 404, contentType: "application/json", body: JSON.stringify({ error: "Not Found", code: 404 }) });
+        return;
+      }
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({ id, can: { add_to: true } }),
       });
       return;
     }
@@ -176,17 +197,28 @@ try {
   await page.screenshot({ path: evidencePath });
   await optionsPage.screenshot({ path: optionsEvidencePath, fullPage: true });
   await page.getByRole("button", { name: "Save to 2" }).click();
-  await page.getByText("Are.na returned 404: Not Found").waitFor({ state: "attached" });
+  await page.getByText("Are.na could not create this link (404). The selected channels are still available.").waitFor({ state: "attached" });
   const failedPanel = await page.getByRole("dialog", { name: "Connect to Are.na" }).boundingBox();
-  const visibleError = await page.getByText("Are.na returned 404: Not Found").boundingBox();
+  const visibleError = await page.getByText("Are.na could not create this link (404). The selected channels are still available.").boundingBox();
   if (!failedPanel || failedPanel.height < 400 || !visibleError || visibleError.y < failedPanel.y || visibleError.y + visibleError.height > failedPanel.y + failedPanel.height) {
     throw new Error(`A failed save hid its error or collapsed the picker: ${JSON.stringify({ failedPanel, visibleError })}`);
   }
   if (!(await readingRow.locator("input").isChecked()) || !(await createdRow.locator("input").isChecked())) {
     throw new Error("A failed save lost the selected channels");
   }
+  if (checkedChannelIds.sort((a, b) => a - b).join(",") !== "7,12") {
+    throw new Error(`A failed save did not check the selected channels: ${checkedChannelIds.join(",")}`);
+  }
   await page.screenshot({ path: errorEvidencePath });
-  console.log("browser smoke passed: onboarding, pagination, channel creation, compact capture, and visible save errors");
+  channelUnavailable = true;
+  await page.getByRole("button", { name: "Save to 2" }).click();
+  await page.getByText("A selected channel is no longer available. Close and reopen the extension to refresh your channels.").waitFor({ state: "attached" });
+  const cachedChannels = await worker.evaluate(`chrome.storage.local.get("arenaChannelCache").then((stored) => stored.arenaChannelCache)`);
+  if (cachedChannels !== undefined) throw new Error("A missing channel left the stale cache intact");
+  blockShouldSucceed = true;
+  await page.getByRole("button", { name: "Save to 2" }).click();
+  await page.locator("likely-home-overlay").waitFor({ state: "detached" });
+  console.log("browser smoke passed: onboarding, pagination, channel creation, compact capture, save diagnosis, and successful save");
 } finally {
   await context.close();
   server.close();
