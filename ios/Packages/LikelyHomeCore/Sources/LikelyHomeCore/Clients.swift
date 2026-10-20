@@ -5,12 +5,27 @@ import FoundationNetworking
 
 public protocol HTTPTransport: Sendable {
     func data(for request: URLRequest) async throws -> (Data, HTTPURLResponse)
+    func upload(for request: URLRequest, from fileURL: URL) async throws -> (Data, HTTPURLResponse)
+}
+
+public extension HTTPTransport {
+    func upload(for request: URLRequest, from fileURL: URL) async throws -> (Data, HTTPURLResponse) {
+        var request = request
+        request.httpBody = try Data(contentsOf: fileURL)
+        return try await data(for: request)
+    }
 }
 
 public struct URLSessionTransport: HTTPTransport {
     public init() {}
     public func data(for request: URLRequest) async throws -> (Data, HTTPURLResponse) {
         let (data, response) = try await URLSession.shared.data(for: request)
+        guard let http = response as? HTTPURLResponse else { throw CoreError.invalidResponse }
+        return (data, http)
+    }
+
+    public func upload(for request: URLRequest, from fileURL: URL) async throws -> (Data, HTTPURLResponse) {
+        let (data, response) = try await URLSession.shared.upload(for: request, fromFile: fileURL)
         guard let http = response as? HTTPURLResponse else { throw CoreError.invalidResponse }
         return (data, http)
     }
@@ -75,8 +90,8 @@ public struct ArenaClient: Sendable {
             let body = try JSONEncoder().encode(ConnectionBody(connectableID: channel.id, connectableType: "Channel", channels: channels))
             _ = try await request(path: "/v3/connections", method: "POST", body: body)
             return nil
-        case .localAsset:
-            throw CoreError.localAssetNeedsPublisher
+        case .localAsset(let fileURL, let contentType, let filename):
+            return try await uploadAndCreateBlock(fileURL: fileURL, contentType: contentType, filename: filename, channels: channels)
         case .link(let url):
             return try await createBlock(value: url.absoluteString, title: nil, sourceURL: nil, sourceTitle: nil, channels: channels)
         case .text(let value, let sourceURL, let sourceTitle):
@@ -84,6 +99,28 @@ public struct ArenaClient: Sendable {
         case .remoteAsset(let url, let sourceURL, let sourceTitle):
             return try await createBlock(value: url.absoluteString, title: nil, sourceURL: sourceURL, sourceTitle: sourceTitle, channels: channels)
         }
+    }
+
+    private func uploadAndCreateBlock(fileURL: URL, contentType: String, filename: String, channels: [ChannelReference]) async throws -> URL? {
+        let body = try JSONEncoder().encode(PresignBody(files: [.init(filename: filename, contentType: contentType)]))
+        let presign = try decoder.decode(PresignResponse.self, from: await request(path: "/v3/uploads/presign", method: "POST", body: body))
+        guard presign.files.count == 1, let file = presign.files.first,
+              let uploadURL = URL(string: file.uploadURL), uploadURL.scheme == "https" else {
+            throw CoreError.invalidResponse
+        }
+
+        var upload = URLRequest(url: uploadURL)
+        upload.httpMethod = "PUT"
+        upload.setValue(file.contentType, forHTTPHeaderField: "Content-Type")
+        let (_, response) = try await transport.upload(for: upload, from: fileURL)
+        guard (200..<300).contains(response.statusCode) else { throw CoreError.uploadFailed }
+
+        var location = URLComponents()
+        location.scheme = "https"
+        location.host = "s3.amazonaws.com"
+        location.path = "/arena_images-temp/\(file.key)"
+        guard let value = location.url else { throw CoreError.invalidResponse }
+        return try await createBlock(value: value.absoluteString, title: filename, sourceURL: nil, sourceTitle: nil, channels: channels)
     }
 
     private func createBlock(value: String, title: String?, sourceURL: URL?, sourceTitle: String?, channels: [ChannelReference]) async throws -> URL? {
@@ -118,6 +155,23 @@ private struct ChannelWire: Decodable {
 }
 private struct ChannelPageWire: Decodable { let data: [ChannelWire]; let meta: MetaWire }
 private struct BlockWire: Decodable { let id: Int }
+private struct PresignBody: Encodable {
+    struct File: Encodable {
+        let filename: String
+        let contentType: String
+        enum CodingKeys: String, CodingKey { case filename, contentType = "content_type" }
+    }
+    let files: [File]
+}
+private struct PresignResponse: Decodable {
+    struct File: Decodable {
+        let uploadURL: String
+        let key: String
+        let contentType: String
+        enum CodingKeys: String, CodingKey { case uploadURL = "upload_url", key, contentType = "content_type" }
+    }
+    let files: [File]
+}
 private struct ChannelReference: Codable { let id: Int }
 private struct CreateChannelBody: Encodable { let title: String; let visibility: ChannelVisibility }
 private struct ConnectionBody: Encodable {

@@ -10,8 +10,8 @@ The iOS app contains a native Share Extension with the same channel-ranking beha
 
 If you change `project.yml`, install XcodeGen with `brew install xcodegen` and run `xcodegen generate` in this directory to update the checked-in Xcode project.
 
-The host app signs into Are.na, stores the user’s Jev key, and refreshes the shared channel cache. The Share Extension reads that cache, ranks it with Jev, supports channel creation and multi-select, and saves URLs or text directly to Are.na.
+The host app signs into Are.na, stores the user’s Jev key, and refreshes the shared channel cache. The Share Extension reads that cache, ranks it with Jev, supports channel creation and multi-select, and saves URLs, text, and shared files directly to Are.na.
 
 The project builds and launches in an unsigned simulator. A signed iPhone build is needed to test sign-in and the complete share flow. Run the core tests with `swift test` from `Packages/LikelyHomeCore`.
 
-Photos and local PDFs are accepted and ranked, but Are.na v3 currently documents block creation from a public URL or text rather than uploaded bytes. Saving those local files remains unavailable until a temporary upload service is configured. Shared public URLs, including remote image and PDF URLs, can be saved now.
+Local photos and files are uploaded directly to Are.na with its presigned upload flow before creating a block. Shared public URLs, including remote image and PDF URLs, remain URL-based saves.

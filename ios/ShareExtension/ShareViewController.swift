@@ -36,18 +36,13 @@ final class ShareModel: ObservableObject {
     @Published var order: [ChannelID] = []
     @Published var selection = ChannelSelection()
     @Published var query = ""
+    @Published var saveError: String?
     @Published var showingCreate = false
     @Published var newChannelTitle = ""
     @Published var newChannelVisibility: ChannelVisibility = .private
     private weak var extensionContext: NSExtensionContext?
 
     init(extensionContext: NSExtensionContext?) { self.extensionContext = extensionContext }
-
-    var needsUploadService: Bool {
-        guard let capture else { return false }
-        if case .localAsset = capture.target { return true }
-        return false
-    }
 
     var visibleChannels: [Channel] {
         let byID = Dictionary(uniqueKeysWithValues: channels.map { ($0.id, $0) })
@@ -82,16 +77,29 @@ final class ShareModel: ObservableObject {
 
     func save() async {
         guard let token = SharedStore.credential("arena-token"), let capture else { phase = .setup; return }
+        saveError = nil
         phase = .saving
         do {
             _ = try await ArenaClient(token: token).save(capture.target, channelIDs: selection.ids)
+            discardLocalCopy()
             phase = .saved
             try? await Task.sleep(for: .milliseconds(350))
             extensionContext?.completeRequest(returningItems: nil)
-        } catch { phase = .failed(error.localizedDescription) }
+        } catch {
+            saveError = error.localizedDescription
+            phase = .ready
+        }
     }
 
-    func cancel() { extensionContext?.cancelRequest(withError: CocoaError(.userCancelled)) }
+    func cancel() {
+        discardLocalCopy()
+        extensionContext?.cancelRequest(withError: CocoaError(.userCancelled))
+    }
+
+    private func discardLocalCopy() {
+        guard let capture, case .localAsset(let fileURL, _, _) = capture.target else { return }
+        try? FileManager.default.removeItem(at: fileURL.deletingLastPathComponent())
+    }
 }
 
 @MainActor enum ShareResolver {
@@ -106,10 +114,23 @@ final class ShareModel: ObservableObject {
                 : .text(value: payload.selectedText, sourceURL: url, sourceTitle: payload.title)
             return Capture(target: target, context: context)
         }
+        if let provider = providers.first(where: { $0.hasItemConformingToTypeIdentifier(UTType.fileURL.identifier) }),
+           let type = provider.sharedFileType {
+            return try await captureFile(from: provider, type: type)
+        }
         if let provider = providers.first(where: { $0.hasItemConformingToTypeIdentifier(UTType.url.identifier) }),
            let url = try? await provider.loadSharedURL() {
+            if url.isFileURL {
+                let access = url.startAccessingSecurityScopedResource()
+                defer { if access { url.stopAccessingSecurityScopedResource() } }
+                let type = UTType(filenameExtension: url.pathExtension) ?? .data
+                return captureFile(try storedCopy(of: url, type: type, preferredName: provider.suggestedName))
+            }
             let context = await WebContext.fetch(url)
             return Capture(target: arenaTarget(for: context.url ?? url), context: context)
+        }
+        if let provider = providers.first(where: { $0.sharedFileType != nil }), let type = provider.sharedFileType {
+            return try await captureFile(from: provider, type: type)
         }
         if let provider = providers.first(where: { $0.hasItemConformingToTypeIdentifier(UTType.plainText.identifier) }),
            let text = try? await provider.loadSharedText() {
@@ -119,14 +140,19 @@ final class ShareModel: ObservableObject {
             }
             return Capture(target: .text(value: text, sourceURL: nil, sourceTitle: ""), context: PageContext(url: nil, excerpt: text, selectedText: text))
         }
-        for type in [UTType.image, UTType.pdf] {
-            if let provider = providers.first(where: { $0.hasItemConformingToTypeIdentifier(type.identifier) }),
-               let file = try? await provider.copySharedFile(type: type) {
-                let excerpt = type == .pdf ? (PDFDocument(url: file)?.string ?? "") : ""
-                return Capture(target: .localAsset(fileURL: file, contentType: type.preferredMIMEType ?? "application/octet-stream", filename: file.lastPathComponent), context: PageContext(url: nil, title: file.lastPathComponent, excerpt: excerpt))
-            }
-        }
         throw CoreError.invalidResponse
+    }
+
+    private static func captureFile(from provider: NSItemProvider, type: UTType) async throws -> Capture {
+        captureFile(try await provider.copySharedFile(type: type))
+    }
+
+    private static func captureFile(_ file: (url: URL, contentType: String, filename: String)) -> Capture {
+        let excerpt = file.contentType == "application/pdf" ? (PDFDocument(url: file.url)?.string ?? "") : ""
+        return Capture(
+            target: .localAsset(fileURL: file.url, contentType: file.contentType, filename: file.filename),
+            context: PageContext(url: nil, title: file.filename, excerpt: excerpt)
+        )
     }
 
     private static func arenaTarget(for url: URL) -> CaptureTarget {
@@ -147,6 +173,20 @@ private struct SafariPayload: Sendable {
 }
 
 @MainActor private extension NSItemProvider {
+    var sharedFileType: UTType? {
+        var types: [UTType] = []
+        for identifier in registeredTypeIdentifiers(fileOptions: []) {
+            guard let type = UTType(identifier),
+                  type != .url, type != .fileURL, type != .plainText,
+                  type != .propertyList, type != .data, type != .item,
+                  type.preferredMIMEType != nil, type.conforms(to: .data) else { continue }
+            types.append(type)
+        }
+        if let type = types.first(where: { $0.conforms(to: .pdf) || $0.conforms(to: .image) }) { return type }
+        if hasItemConformingToTypeIdentifier(UTType.fileURL.identifier) { return types.first ?? .data }
+        return types.first(where: { !$0.conforms(to: .text) && !$0.conforms(to: .html) })
+    }
+
     func loadSafariPayload() async throws -> SafariPayload {
         try await withCheckedThrowingContinuation { continuation in
             loadItem(forTypeIdentifier: UTType.propertyList.identifier) { item, error in
@@ -189,25 +229,49 @@ private struct SafariPayload: Sendable {
         }
     }
 
-    func copySharedFile(type: UTType) async throws -> URL {
-        try await withCheckedThrowingContinuation { continuation in
-            loadFileRepresentation(forTypeIdentifier: type.identifier) { source, error in
-                do {
-                    if let error { throw error }
-                    guard let source,
-                          let group = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: SharedStore.appGroup) else {
-                        throw CoreError.invalidResponse
-                    }
-                    let root = group.appending(path: "Shares", directoryHint: .isDirectory)
-                    try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
-                    let suffix = source.pathExtension.isEmpty ? type.preferredFilenameExtension ?? "file" : source.pathExtension
-                    let destination = root.appending(path: UUID().uuidString + "." + suffix)
-                    try FileManager.default.copyItem(at: source, to: destination)
-                    continuation.resume(returning: destination)
-                } catch { continuation.resume(throwing: error) }
+    func copySharedFile(type: UTType) async throws -> (url: URL, contentType: String, filename: String) {
+        let preferredName = self.suggestedName
+        do {
+            return try await withCheckedThrowingContinuation { continuation in
+                loadFileRepresentation(forTypeIdentifier: type.identifier) { source, error in
+                    do {
+                        if let error { throw error }
+                        guard let source else { throw CoreError.invalidResponse }
+                        continuation.resume(returning: try storedCopy(of: source, type: type, preferredName: preferredName))
+                    } catch { continuation.resume(throwing: error) }
+                }
+            }
+        } catch {
+            guard hasItemConformingToTypeIdentifier(UTType.fileURL.identifier) else { throw error }
+            return try await withCheckedThrowingContinuation { continuation in
+                loadItem(forTypeIdentifier: UTType.fileURL.identifier) { item, loadError in
+                    do {
+                        if let loadError { throw loadError }
+                        guard let source = item as? URL, source.isFileURL else { throw CoreError.invalidResponse }
+                        let access = source.startAccessingSecurityScopedResource()
+                        defer { if access { source.stopAccessingSecurityScopedResource() } }
+                        continuation.resume(returning: try storedCopy(of: source, type: type, preferredName: preferredName))
+                    } catch { continuation.resume(throwing: error) }
+                }
             }
         }
     }
+}
+
+private func storedCopy(of source: URL, type: UTType, preferredName: String?) throws -> (url: URL, contentType: String, filename: String) {
+    let root = FileManager.default.temporaryDirectory.appending(path: UUID().uuidString, directoryHint: .isDirectory)
+    try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
+    let suggested = preferredName ?? source.deletingPathExtension().lastPathComponent
+    let name = URL(fileURLWithPath: suggested).lastPathComponent
+    let extensionName = URL(fileURLWithPath: name).pathExtension
+    let suffix = extensionName.isEmpty ? type.preferredFilenameExtension ?? source.pathExtension : extensionName
+    let filename = extensionName.isEmpty && !suffix.isEmpty ? name + "." + suffix : name
+    let destination = root.appending(path: filename)
+    try FileManager.default.copyItem(at: source, to: destination)
+    let contentType = (type == .data ? nil : type.preferredMIMEType)
+        ?? UTType(filenameExtension: suffix)?.preferredMIMEType
+        ?? "application/octet-stream"
+    return (destination, contentType, filename)
 }
 
 struct ShareView: View {
@@ -240,7 +304,7 @@ struct ShareView: View {
                         .font(.custom("Arial", size: 14))
                         .foregroundStyle(ShareStyle.ink)
                         .lineLimit(1)
-                    Text(capture.context.url?.host() ?? "Selected text")
+                    Text(captureSubtitle(capture))
                         .font(.custom("Arial", size: 12))
                         .foregroundStyle(ShareStyle.muted)
                         .lineLimit(1)
@@ -285,13 +349,6 @@ struct ShareView: View {
 
             ScrollView {
                 LazyVStack(spacing: 0) {
-                    if model.needsUploadService {
-                        Text("Local files need an upload service. Share a public URL instead.")
-                            .font(.custom("Arial", size: 13))
-                            .foregroundStyle(ShareStyle.muted)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .padding(14)
-                    }
                     if model.showingCreate { createForm }
                     else {
                         Button("+ New channel") { model.showingCreate = true }
@@ -311,6 +368,14 @@ struct ShareView: View {
                 }
             }
             .scrollDismissesKeyboard(.interactively)
+            if let saveError = model.saveError {
+                Text(saveError)
+                    .font(.custom("Arial", size: 12))
+                    .foregroundStyle(ShareStyle.ink)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 8)
+            }
             footer
         }
     }
@@ -394,8 +459,8 @@ struct ShareView: View {
             .font(.custom("Arial", size: 14))
             .foregroundStyle(.white)
             .frame(minWidth: 96, minHeight: 36)
-            .background(model.selection.ids.isEmpty || model.needsUploadService ? ShareStyle.disabled : ShareStyle.ink)
-            .disabled(model.selection.ids.isEmpty || model.needsUploadService)
+            .background(model.selection.ids.isEmpty ? ShareStyle.disabled : ShareStyle.ink)
+            .disabled(model.selection.ids.isEmpty)
             .buttonStyle(.plain)
         }
         .padding(.horizontal, 10)
@@ -419,6 +484,14 @@ struct ShareView: View {
         case .localAsset(_, _, let filename): return filename
         default: return capture.context.url?.absoluteString ?? "Shared item"
         }
+    }
+
+    private func captureSubtitle(_ capture: Capture) -> String {
+        if let host = capture.context.url?.host() { return host }
+        if case .localAsset(_, let contentType, _) = capture.target {
+            return contentType == "application/pdf" ? "PDF" : "File"
+        }
+        return "Selected text"
     }
 
 }

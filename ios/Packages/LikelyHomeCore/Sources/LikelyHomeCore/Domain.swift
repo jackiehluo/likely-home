@@ -101,6 +101,7 @@ public struct ChannelSnapshot: Codable, Equatable, Sendable {
         self.fetchedAt = fetchedAt
         self.channels = channels
     }
+
 }
 
 public enum CoreError: LocalizedError, Equatable {
@@ -108,7 +109,7 @@ public enum CoreError: LocalizedError, Equatable {
     case unauthorized
     case setupRequired
     case noChannelsSelected
-    case localAssetNeedsPublisher
+    case uploadFailed
 
     public var errorDescription: String? {
         switch self {
@@ -116,7 +117,7 @@ public enum CoreError: LocalizedError, Equatable {
         case .unauthorized: "Your Are.na session expired. Sign in again."
         case .setupRequired: "Finish setup in Likely Home first."
         case .noChannelsSelected: "Choose at least one channel."
-        case .localAssetNeedsPublisher: "This photo or file needs the Likely Home upload service."
+        case .uploadFailed: "Couldn't upload this file to Are.na. Try again."
         }
     }
 }
