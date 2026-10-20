@@ -76,6 +76,15 @@ final class SetupModel: NSObject, ASWebAuthenticationPresentationContextProvidin
         channelCount = snapshot.channels.count
     }
 
+    func refreshChannelsIfStale() async {
+        guard arenaConnected, !isWorking else { return }
+        let snapshot = try? SharedStore.cache().read()
+        guard snapshot?.isStale() ?? true else { return }
+        isWorking = true
+        defer { isWorking = false }
+        try? await refreshChannels()
+    }
+
     private func authenticate(_ url: URL) async throws -> URL {
         try await withCheckedThrowingContinuation { continuation in
             let session = ASWebAuthenticationSession(url: url, callbackURLScheme: "likelyhome") { url, error in
@@ -213,6 +222,7 @@ struct SetupView: View {
         .alert("Likely Home", isPresented: .constant(model.message != nil)) {
             Button("OK") { model.message = nil }
         } message: { Text(model.message ?? "") }
+        .task { await model.refreshChannelsIfStale() }
     }
 
     private var ink: Color { Color(white: 0.09) }

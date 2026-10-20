@@ -41,6 +41,7 @@ final class ShareModel: ObservableObject {
     @Published var newChannelTitle = ""
     @Published var newChannelVisibility: ChannelVisibility = .private
     private weak var extensionContext: NSExtensionContext?
+    private var refreshTask: Task<Void, Never>?
 
     init(extensionContext: NSExtensionContext?) { self.extensionContext = extensionContext }
 
@@ -51,12 +52,28 @@ final class ShareModel: ObservableObject {
     }
 
     func start() async {
-        guard SharedStore.credential("arena-token") != nil,
-              let key = SharedStore.credential("jev-key"), !key.isEmpty,
-              let snapshot = try? SharedStore.cache().read() else { phase = .setup; return }
+        guard let token = SharedStore.credential("arena-token"),
+              let key = SharedStore.credential("jev-key"), !key.isEmpty else { phase = .setup; return }
         do {
             capture = try await ShareResolver.resolve(extensionContext?.inputItems ?? [])
+            let cache = try SharedStore.cache()
+            let snapshot: ChannelSnapshot
+            if let cached = try? cache.read() {
+                snapshot = cached
+            } else {
+                snapshot = try await ArenaClient(token: token).fetchChannels()
+                try cache.replace(with: snapshot)
+            }
             channels = snapshot.channels; order = channels.map(\.id); phase = .ready
+            if snapshot.isStale() {
+                refreshTask = Task {
+                    do {
+                        let fresh = try await ArenaClient(token: token).fetchChannels()
+                        try Task.checkCancellation()
+                        try cache.replace(with: fresh)
+                    } catch { /* Keep the cached list and retry next time. */ }
+                }
+            }
             if let capture, let ranking = await JevClient(apiKey: key).rank(context: capture.context, channels: channels) {
                 order = ranking.orderedIDs
             }
@@ -69,6 +86,7 @@ final class ShareModel: ObservableObject {
         guard let token = SharedStore.credential("arena-token") else { phase = .setup; return }
         do {
             let channel = try await ArenaClient(token: token).createChannel(title: newChannelTitle, visibility: newChannelVisibility)
+            refreshTask?.cancel()
             try SharedStore.cache().prepend(channel)
             channels.insert(channel, at: 0); order.removeAll { $0 == channel.id }; order.insert(channel.id, at: 0)
             _ = selection.toggle(channel.id); showingCreate = false; newChannelTitle = ""

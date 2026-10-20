@@ -42,6 +42,14 @@ private func channel(_ id: Int, _ title: String = "Channel") -> Channel {
     #expect(try cache.read()?.channels.map(\.id) == [ChannelID(2), ChannelID(1)])
 }
 
+@Test func channelSnapshotExpiresAfterOneDay() {
+    let now = Date(timeIntervalSince1970: 1_000_000)
+    let fresh = ChannelSnapshot(accountID: 42, fetchedAt: now.addingTimeInterval(-86_399), channels: [])
+    let stale = ChannelSnapshot(accountID: 42, fetchedAt: now.addingTimeInterval(-86_400), channels: [])
+    #expect(!fresh.isStale(at: now))
+    #expect(stale.isStale(at: now))
+}
+
 @Test func htmlContextIncludesCanonicalTitleDescriptionAndExcerpt() throws {
     let url = try #require(URL(string: "https://example.org/story?from=share"))
     let html = """

@@ -90,6 +90,7 @@ public struct ChannelSelection: Equatable, Sendable {
 
 public struct ChannelSnapshot: Codable, Equatable, Sendable {
     public static let currentSchema = 1
+    public static let refreshInterval: TimeInterval = 24 * 60 * 60
     public let schemaVersion: Int
     public let accountID: Int
     public let fetchedAt: Date
@@ -102,6 +103,9 @@ public struct ChannelSnapshot: Codable, Equatable, Sendable {
         self.channels = channels
     }
 
+    public func isStale(at date: Date = .now) -> Bool {
+        date.timeIntervalSince(fetchedAt) >= Self.refreshInterval
+    }
 }
 
 public enum CoreError: LocalizedError, Equatable {
