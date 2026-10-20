@@ -9,9 +9,8 @@ The Chrome extension lives at the repository root. The native iPhone app is in [
 1. Install dependencies with `bun install`.
 2. Build with `bun run build`.
 3. Open `chrome://extensions`, enable Developer mode, choose **Load unpacked**, and select `.output/chrome-mv3`.
-4. Open the extension's settings page.
-5. Add a TypeSafe Jev API key and save.
-6. Connect your Are.na account using the built-in sign-in.
+4. Open a page and click the extension icon. Connect your Are.na account.
+5. Enter your TypeSafe Jev API key when prompted.
 
 The extension requests Are.na's `write` scope because capture creates blocks and connections. It uses its built-in OAuth application with Authorization Code and PKCE, and does not ship a client secret.
 

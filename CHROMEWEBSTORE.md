@@ -69,16 +69,8 @@ Before submission, publish that policy at a stable HTTPS URL and enter the URL i
 
 Provide reviewer credentials in the dashboard if the reviewer cannot create the required service accounts.
 
-## Release checklist
+## Update the published extension
 
-- [x] Manifest V3 package builds with the manifest at the ZIP root.
-- [x] No remotely hosted scripts, styles, or fonts.
-- [x] No client secret or TypeSafe API key in the package.
-- [x] On-demand page injection instead of a persistent all-sites content script.
-- [x] Unit, type, build, and real-Chrome smoke checks.
-- [x] Store icon, screenshot, and small promo tile generated.
-- [ ] Upload the first draft to get the final Chrome Web Store extension ID.
-- [ ] Add `https://<WEB_STORE_EXTENSION_ID>.chromiumapp.org/arena` to the Are.na OAuth application.
-- [ ] Publish `PRIVACY.md` at a stable HTTPS URL and add it in the dashboard.
-- [ ] Add support and homepage URLs in the Store Listing tab.
-- [ ] Complete the Privacy, Distribution, and Test instructions tabs, then submit for review.
+1. Increase `version` in `package.json` above the published version.
+2. Run `bun run verify:release`. Upload the generated `outputs/likely-home-<version>-chrome.zip` in the Chrome Web Store Developer Dashboard under **Package → Upload New Package**.
+3. Review any changed listing or privacy details, then submit the update for review. The existing extension ID and Are.na OAuth redirect stay the same.
