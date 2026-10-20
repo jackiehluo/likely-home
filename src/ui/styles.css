@@ -43,6 +43,7 @@ button, input { font: inherit; }
 .lh-check { display: grid; width: 18px; height: 18px; flex: none; place-items: center; border: 1px solid #888; color: #fff; font-size: 11px; }
 .lh-channel.is-selected .lh-check { border-color: #111; background: #111; }
 .lh-channel-title { min-width: 0; overflow: hidden; line-height: 1.2; white-space: nowrap; text-overflow: ellipsis; }
+.lh-channel-visibility-icon { width: 15px; height: 15px; flex: none; margin-left: auto; color: #777; }
 .lh-empty { padding: 26px 14px; color: #777; text-align: center; }
 .lh-error-banner { display: flex; max-height: 90px; flex: 0 0 auto; align-items: center; justify-content: space-between; gap: 10px; overflow: auto; padding: 9px 14px; color: #9d2f20; font-size: 12px; line-height: 1.35; }
 .lh-error-banner span { overflow-wrap: anywhere; }

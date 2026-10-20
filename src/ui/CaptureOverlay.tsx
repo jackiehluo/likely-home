@@ -8,6 +8,31 @@ type Props = Readonly<{ capture: ExtractedCapture; onClose(): void }>;
 
 type OnboardingStep = "checking" | "arena" | "jev" | "picker";
 
+function ChannelVisibilityIcon({ visibility }: { visibility: ChannelVisibility }) {
+  switch (visibility) {
+    case "closed":
+      return null;
+    case "private":
+      return (
+        <svg className="lh-channel-visibility-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
+          <path d="M6.5 8V6a3.5 3.5 0 0 1 7 0v2" />
+          <rect x="4.5" y="8" width="11" height="9" rx="1" />
+        </svg>
+      );
+    case "public":
+      return (
+        <svg className="lh-channel-visibility-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
+          <circle cx="10" cy="10" r="7.5" />
+          <path d="M2.5 10h15M10 2.5c2 2 3 4.5 3 7.5s-1 5.5-3 7.5M10 2.5c-2 2-3 4.5-3 7.5s1 5.5 3 7.5" />
+        </svg>
+      );
+    default: {
+      const exhaustive: never = visibility;
+      return exhaustive;
+    }
+  }
+}
+
 export function CaptureOverlay({ capture, onClose }: Props) {
   const [state, dispatch] = useReducer(transition, initialCaptureState(capture.target, capture.context));
   const nextRequestId = useRef(0);
@@ -228,9 +253,10 @@ export function CaptureOverlay({ capture, onClose }: Props) {
               {state.phase === "loading" && channels.length === 0 ? <p className="lh-empty">Loading channels…</p> : null}
               {channels.map((channel) => (
                 <label key={channel.id} className={`lh-channel ${state.selectedIds.has(channel.id) ? "is-selected" : ""}`}>
-                  <input type="checkbox" checked={state.selectedIds.has(channel.id)} onChange={() => dispatch({ type: "channel-toggled", channelId: channel.id })} />
+                  <input type="checkbox" aria-label={`${channel.title}, ${channel.visibility} channel`} checked={state.selectedIds.has(channel.id)} onChange={() => dispatch({ type: "channel-toggled", channelId: channel.id })} />
                   <span className="lh-check" aria-hidden="true">{state.selectedIds.has(channel.id) ? "✓" : ""}</span>
                   <span className="lh-channel-title">{channel.title}</span>
+                  <ChannelVisibilityIcon visibility={channel.visibility} />
                 </label>
               ))}
               {state.phase !== "loading" && channels.length === 0 && !state.error && newChannel.kind === "closed" ? <p className="lh-empty">No matching channels.</p> : null}

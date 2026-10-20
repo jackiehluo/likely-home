@@ -146,6 +146,11 @@ try {
   await page.getByRole("button", { name: "Continue", exact: true }).click();
   await page.getByText("Reading", { exact: true }).waitFor({ state: "visible" });
   await page.getByText("References", { exact: true }).waitFor({ state: "visible" });
+  for (const [title, visibility, iconCount] of [["Reading", "private", 1], ["References", "public", 1], ["Overflow channel 0", "closed", 0]] as const) {
+    const row = page.locator(".lh-channel", { hasText: title });
+    if ((await row.locator(".lh-channel-visibility-icon").count()) !== iconCount) throw new Error(`${visibility} channel has the wrong icon count`);
+    await row.getByRole("checkbox", { name: `${title}, ${visibility} channel` }).waitFor({ state: "attached" });
+  }
   if (await page.getByText("Likely homes").isVisible()) throw new Error("The likely-home label is still visible");
   if (await page.getByText("Private", { exact: true }).isVisible()) throw new Error("Channel visibility is still visible");
   if (await page.getByText("Are.na is temporarily unavailable. Try again.").isVisible()) throw new Error("A refresh failure hid the cached channel list");
