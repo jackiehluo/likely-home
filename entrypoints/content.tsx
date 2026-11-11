@@ -19,8 +19,9 @@ export default defineContentScript({
       host = null;
     };
 
-    browser.runtime.onMessage.addListener((message: OpenOverlayMessage) => {
+    browser.runtime.onMessage.addListener(async (message: OpenOverlayMessage) => {
       if (message.type !== "open-overlay") return;
+      if (document.contentType === "application/pdf" || document.querySelector('embed[type="application/pdf"]')) return { pdf: true };
       remove();
       const capture = extractCapture(message);
       host = document.createElement("likely-home-overlay");

@@ -21,6 +21,7 @@ export type PageContext = Readonly<{
   description: string;
   excerpt: string;
   selectedText: string;
+  documentType?: "pdf";
 }>;
 
 export type Ranking = Readonly<{

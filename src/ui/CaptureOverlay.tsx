@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useReducer, useRef, useState } from "react";
 import { initialCaptureState, transition } from "../domain";
-import type { Channel, ChannelVisibility } from "../domain";
+import type { Channel, ChannelVisibility, PageContext } from "../domain";
 import type { ExtractedCapture } from "./extract";
 import { request } from "./runtime";
 
-type Props = Readonly<{ capture: ExtractedCapture; onClose(): void }>;
+type Props = Readonly<{ capture: ExtractedCapture; onClose(): void; rankingContext?: Promise<PageContext | null>; notice?: string | null }>;
 
 type OnboardingStep = "checking" | "arena" | "jev" | "picker";
 
@@ -33,7 +33,7 @@ function ChannelVisibilityIcon({ visibility }: { visibility: ChannelVisibility }
   }
 }
 
-export function CaptureOverlay({ capture, onClose }: Props) {
+export function CaptureOverlay({ capture, onClose, rankingContext, notice }: Props) {
   const [state, dispatch] = useReducer(transition, initialCaptureState(capture.target, capture.context));
   const nextRequestId = useRef(0);
   const searchTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -55,13 +55,15 @@ export function CaptureOverlay({ capture, onClose }: Props) {
     if (!response.ok) return dispatch({ type: "failed", error: { kind: "channels", message: response.message } });
     if (response.type !== "channels") return dispatch({ type: "failed", error: { kind: "channels", message: "Are.na returned an unexpected response." } });
     dispatch({ type: "channels-loaded", channels: response.channels, requestId });
-    const ranking = await request({ type: "rank-channels", context: capture.context, channels: response.channels });
+    const context = rankingContext ? await rankingContext : capture.context;
+    if (!context) return dispatch({ type: "ranking-unavailable", requestId });
+    const ranking = await request({ type: "rank-channels", context, channels: response.channels });
     if (!ranking.ok || ranking.type !== "ranking" || !ranking.ranking) {
       dispatch({ type: "ranking-unavailable", requestId });
       return;
     }
     dispatch({ type: "channels-ranked", ranking: ranking.ranking, requestId });
-  }, [capture.context]);
+  }, [capture.context, rankingContext]);
 
   useEffect(() => {
     void request({ type: "get-status" }).then((response) => {
@@ -199,8 +201,9 @@ export function CaptureOverlay({ capture, onClose }: Props) {
                 <span className="lh-capture-title">{capture.context.title || capture.context.url}</span>
                 <span className="lh-capture-url">{new URL(capture.context.url).hostname}</span>
               </div>
-              <span className="lh-capture-type">{capture.target.kind === "text" ? "Text" : capture.target.kind === "image" ? "Image" : "Link"}</span>
+              <span className="lh-capture-type">{capture.target.kind === "text" ? "Text" : capture.context.documentType === "pdf" ? "PDF" : capture.target.kind === "image" ? "Image" : "Link"}</span>
             </div>
+            {notice ? <p className="lh-notice" role="status">{notice}</p> : null}
             <div className="lh-search-wrap">
               <span className="lh-search-icon" aria-hidden="true">⌕</span>
               <input className="lh-search" type="search" placeholder="Search channels" value={searchValue} onChange={(event) => search(event.currentTarget.value)} autoFocus />
