@@ -42,7 +42,7 @@ async function askJev(apiKey: string, context: PageContext, channels: readonly C
         questions: {
           home: {
             type: "choice",
-            instructions: "Which Are.na channel is the most fitting home for this page or selection? Prefer the channel whose topic and intent most specifically match.",
+            instructions: "Which Are.na channel is the most fitting home for this page, document, or selection? Prefer the channel whose topic and intent most specifically match the provided text.",
             criteria,
           },
         },

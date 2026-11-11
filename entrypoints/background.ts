@@ -5,19 +5,35 @@ import { rankChannels } from "../src/jev";
 import type { OpenOverlayMessage, Request, Response } from "../src/protocol";
 import { completeJevSetup, getArenaToken, getSettings, saveSettings } from "../src/settings";
 import { canOpenOverlay } from "../src/browser";
+import { isPdfUrl, type PdfSource } from "../src/pdf-source";
 
 async function sendOpen(tabId: number, message: OpenOverlayMessage): Promise<boolean> {
   try {
-    await browser.tabs.sendMessage(tabId, message);
-    return true;
+    const response = await browser.tabs.sendMessage(tabId, message);
+    return !response?.pdf;
   } catch {
     try {
       await browser.scripting.executeScript({ target: { tabId }, files: ["/content-scripts/content.js"] });
-      await browser.tabs.sendMessage(tabId, message);
-      return true;
+      const response = await browser.tabs.sendMessage(tabId, message);
+      return !response?.pdf;
     } catch {
       return false;
     }
+  }
+}
+
+async function openCapture(tab: { id?: number | undefined; url?: string | undefined; title?: string | undefined }, message: OpenOverlayMessage) {
+  if (tab.id === undefined || !tab.url || !canOpenOverlay(tab.url)) return;
+  if (!isPdfUrl(tab.url) && await sendOpen(tab.id, message)) return;
+  if (message.source === "image") return;
+  const key = `pdf-capture-${crypto.randomUUID()}`;
+  const source: PdfSource = { url: tab.url, title: tab.title ?? "", selectionText: message.selectionText ?? "" };
+  await browser.storage.session.set({ [key]: source });
+  try {
+    await browser.windows.create({ url: `${browser.runtime.getURL("/capture.html")}#${key}`, type: "popup", width: 400, height: 560 });
+  } catch (error) {
+    await browser.storage.session.remove(key);
+    throw error;
   }
 }
 
@@ -70,7 +86,7 @@ async function handleRequest(request: Request): Promise<Response> {
 
 export default defineBackground(() => {
   browser.action.onClicked.addListener((tab) => {
-    if (tab.id !== undefined && canOpenOverlay(tab.url)) void sendOpen(tab.id, { type: "open-overlay", source: "page" });
+    void openCapture(tab, { type: "open-overlay", source: "page" });
   });
 
   browser.runtime.onInstalled.addListener(() => {
@@ -83,10 +99,10 @@ export default defineBackground(() => {
   browser.contextMenus.onClicked.addListener((info, tab) => {
     if (tab?.id === undefined || !canOpenOverlay(tab.url)) return;
     if (info.menuItemId === "likely-home-selection") {
-      void sendOpen(tab.id, { type: "open-overlay", source: "selection", selectionText: info.selectionText ?? "" });
+      void openCapture(tab, { type: "open-overlay", source: "selection", selectionText: info.selectionText ?? "" });
     }
     if (info.menuItemId === "likely-home-image" && info.srcUrl) {
-      void sendOpen(tab.id, { type: "open-overlay", source: "image", imageUrl: info.srcUrl });
+      void openCapture(tab, { type: "open-overlay", source: "image", imageUrl: info.srcUrl });
     }
   });
 

@@ -47,6 +47,7 @@ button, input { font: inherit; }
 .lh-empty { padding: 26px 14px; color: #777; text-align: center; }
 .lh-error-banner { display: flex; max-height: 90px; flex: 0 0 auto; align-items: center; justify-content: space-between; gap: 10px; overflow: auto; padding: 9px 14px; color: #9d2f20; font-size: 12px; line-height: 1.35; }
 .lh-error-banner span { overflow-wrap: anywhere; }
+.lh-notice { flex: 0 0 auto; margin: 0; padding: 8px 14px; color: #666; font-size: 12px; line-height: 1.4; }
 .lh-error-banner .lh-text-button { flex: none; color: inherit; text-decoration: underline; }
 .lh-footer { min-height: 52px; justify-content: flex-end; padding: 8px 10px; border-top: 1px solid #cfcfcf; }
 .lh-primary { min-width: 96px; min-height: 36px; border: 1px solid #111; border-radius: 0; background: #111; color: #fff; cursor: pointer; padding: 0 14px; }

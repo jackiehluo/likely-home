@@ -1,0 +1,4 @@
+body { margin: 0; color: #111; background: #f3f0e8; font: 14px Arial, Helvetica, sans-serif; }
+body > #root > p { padding: 24px; line-height: 1.5; }
+.lh-backdrop { background: transparent; }
+.lh-panel { inset: 0; width: 100vw; height: 100vh; min-width: 0; max-width: none; max-height: none; border: 0; box-shadow: none; }
