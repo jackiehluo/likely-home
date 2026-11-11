@@ -17,6 +17,7 @@ The extension requests Are.na's `write` scope because capture creates blocks and
 ## Use
 
 - Click the toolbar button or press `Alt+A` to connect the current page.
+- On a PDF, Likely Home opens a small capture window and reads the first six pages locally. Jev receives up to 4,000 characters to suggest channels. Scanned, protected, unreadable, or over-20-MB PDFs can still be saved by choosing channels manually.
 - Select text, right-click, and choose **Connect selection to Are.na**.
 - Right-click an image and choose **Connect image to Are.na**.
 - On an Are.na block or channel page, open the extension to connect the existing item instead of creating a duplicate link block.

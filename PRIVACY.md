@@ -1,12 +1,13 @@
 # Privacy policy for Likely Home for Are.na
 
-Last updated: September 21, 2026
+Last updated: November 11, 2026
 
 Likely Home for Are.na has one purpose: help you save the page, text, or image you choose to an Are.na channel, with likely channels sorted by Jev.
 
 ## Data the extension handles
 
 - The URL, title, description, visible text excerpt, or selected text from the page where you open the extension.
+- Text extracted locally from the first six pages of a PDF you choose, limited to a 4,000-character excerpt sent to Jev. PDF bytes are read on your device and are not sent to Jev or an intermediary server. Saving a PDF sends its original URL to Are.na.
 - An image URL when you use the image context-menu action.
 - Your Are.na channel names, descriptions, visibility, and identifiers.
 - An Are.na OAuth access token and your TypeSafe Jev API key.
