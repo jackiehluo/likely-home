@@ -1,5 +1,5 @@
 import { chromium } from "playwright";
-import { cp, mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import { cp, mkdir, mkdtemp, readFile, rm } from "node:fs/promises";
 import { createServer } from "node:http";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
@@ -7,17 +7,6 @@ import { join, resolve } from "node:path";
 const profile = await mkdtemp(join(tmpdir(), "likely-home-pdf-"));
 const extensionPath = join(profile, "extension");
 await cp(resolve(".output/chrome-mv3"), extensionPath, { recursive: true });
-const manifestPath = join(extensionPath, "manifest.json");
-const manifest = await Bun.file(manifestPath).json();
-manifest.host_permissions.push("http://127.0.0.1/*");
-await Bun.write(manifestPath, JSON.stringify(manifest));
-// Capture Chrome's real action callback in this disposable test build only.
-const backgroundPath = join(extensionPath, "background.js");
-const background = await readFile(backgroundPath, "utf8");
-await writeFile(backgroundPath, `const registerAction = chrome.action.onClicked.addListener.bind(chrome.action.onClicked);
-chrome.action.onClicked.addListener = (listener) => { globalThis.testOpenCapture = listener; registerAction(listener); };
-${background}`);
-
 const textPdf = await readFile(resolve("tests/fixtures/hello-world.pdf"));
 const emptyPdf = await readFile(resolve("tests/fixtures/empty.pdf"));
 const server = createServer((request, response) => {
@@ -36,7 +25,7 @@ const context = await chromium.launchPersistentContext(profile, {
   headless: false,
   viewport: null,
   ignoreDefaultArgs: ["--disable-extensions"],
-  args: [`--disable-extensions-except=${extensionPath}`, `--load-extension=${extensionPath}`],
+  args: ["--enable-unsafe-extension-debugging", `--disable-extensions-except=${extensionPath}`, `--load-extension=${extensionPath}`],
 });
 const rankings: { url: string; excerpt: string }[] = [];
 let savedUrl: string | null = null;
@@ -70,12 +59,12 @@ try {
     const url = `${origin}${path}`;
     await source.goto(url, { waitUntil: "load" });
     const popupReady = context.waitForEvent("page");
-    await worker.evaluate(`(async () => {
-      const tabs = await chrome.tabs.query({});
-      const tab = tabs.find((item) => item.url === ${JSON.stringify(url)});
-      if (!tab) throw new Error("PDF source tab not found");
-      globalThis.testOpenCapture(tab);
-    })()`);
+    const session = await context.browser()!.newBrowserCDPSession();
+    const { targetInfos } = await session.send("Target.getTargets", { filter: [{ type: "tab", exclude: false }] });
+    const targetInfo = targetInfos.find((target) => target.type === "tab" && target.url === url) ?? targetInfos.find((target) => target.url === url);
+    if (!targetInfo) throw new Error("PDF browser target not found");
+    await session.send("Extensions.triggerAction", { id: worker.url().split("/")[2]!, targetId: targetInfo.targetId });
+    await session.detach();
     const popup = await popupReady.catch((error: unknown) => {
       console.error("Open pages:", context.pages().map((page) => page.url()));
       throw error;
