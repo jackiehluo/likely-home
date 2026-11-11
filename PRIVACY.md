@@ -24,7 +24,7 @@ The extension does not sell personal data, use it for advertising, or transfer i
 
 ## Security
 
-All network requests use HTTPS. Are.na authorization uses OAuth with PKCE. The extension does not include an Are.na client secret or a TypeSafe API key in its distributed package.
+Requests to Are.na and TypeSafe use HTTPS. PDFs are read from the document’s original URL. Are.na authorization uses OAuth with PKCE. The extension does not include an Are.na client secret or a TypeSafe API key in its distributed package.
 
 ## Contact
 
