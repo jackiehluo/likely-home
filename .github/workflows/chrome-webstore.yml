@@ -1,0 +1,106 @@
+name: Chrome Web Store
+
+on:
+  release:
+    types: [published]
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: Build only, submit for review, or check store status
+        type: choice
+        options: [check, submit, status]
+        default: check
+
+permissions:
+  contents: read
+
+concurrency:
+  group: chrome-webstore-${{ github.event_name == 'pull_request' && github.ref || 'release' }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    if: >-
+      github.event_name == 'pull_request' ||
+      (github.event_name == 'workflow_dispatch' && inputs.action != 'status') ||
+      (github.event_name == 'release' && startsWith(github.event.release.tag_name, 'chrome-v'))
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      CWS_RELEASE_TAG: ${{ github.event_name == 'release' && github.event.release.tag_name || '' }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
+        with:
+          bun-version: 1.3.6
+      - run: bun install --frozen-lockfile
+      - name: Install test browser
+        run: bunx playwright install --with-deps chromium
+      - name: Verify and package extension
+        run: |
+          xvfb-run --auto-servernum bun run verify:release
+          bun scripts/chrome-webstore.ts check outputs/likely-home-*-chrome.zip
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: chrome-extension
+          path: outputs/likely-home-*-chrome.zip
+          if-no-files-found: error
+          retention-days: 14
+
+  store:
+    needs: build
+    if: >-
+      always() && !cancelled() &&
+      ((needs.build.result == 'success' && github.event_name == 'release' && startsWith(github.event.release.tag_name, 'chrome-v')) ||
+      (github.event_name == 'workflow_dispatch' &&
+      ((inputs.action == 'submit' && needs.build.result == 'success') || inputs.action == 'status')))
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      CWS_PUBLISHER_ID: ${{ vars.CWS_PUBLISHER_ID }}
+      CWS_EXTENSION_ID: ${{ vars.CWS_EXTENSION_ID }}
+      CWS_RELEASE_TAG: ${{ github.event_name == 'release' && github.event.release.tag_name || '' }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
+        with:
+          bun-version: 1.3.6
+      - name: Check publishing configuration
+        env:
+          PROVIDER: ${{ vars.CWS_WORKLOAD_IDENTITY_PROVIDER }}
+          ACCOUNT: ${{ vars.CWS_SERVICE_ACCOUNT }}
+        run: |
+          for name in CWS_PUBLISHER_ID CWS_EXTENSION_ID PROVIDER ACCOUNT; do
+            if [ -z "${!name}" ]; then
+              echo "::error::Missing $name. See docs/chrome-publishing.md."
+              exit 1
+            fi
+          done
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        if: inputs.action != 'status'
+        with:
+          name: chrome-extension
+          path: release-package
+      - id: auth
+        uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3
+        with:
+          workload_identity_provider: ${{ vars.CWS_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.CWS_SERVICE_ACCOUNT }}
+          token_format: access_token
+          access_token_scopes: https://www.googleapis.com/auth/chromewebstore
+          create_credentials_file: false
+          export_environment_variables: false
+      - name: Submit or check status
+        env:
+          CWS_ACCESS_TOKEN: ${{ steps.auth.outputs.access_token }}
+          ACTION: ${{ inputs.action || 'submit' }}
+        run: |
+          if [ "$ACTION" = 'status' ]; then
+            bun scripts/chrome-webstore.ts status
+          else
+            bun scripts/chrome-webstore.ts submit release-package/*.zip
+          fi

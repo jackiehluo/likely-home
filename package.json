@@ -12,7 +12,8 @@
     "verify:release": "bun scripts/verify-release.ts",
     "zip": "wxt zip",
     "typecheck": "tsc --noEmit",
-    "test": "bun test"
+    "test": "bun test",
+    "store:status": "bun scripts/chrome-webstore.ts status"
   },
   "dependencies": {
     "@wxt-dev/module-react": "latest",

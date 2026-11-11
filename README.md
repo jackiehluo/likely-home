@@ -34,3 +34,7 @@ This is the release gate. It type-checks, runs unit tests, builds the production
 ## Current constraint
 
 Screenshot capture is intentionally omitted until Are.na documents a supported upload route.
+
+## Automated Chrome releases
+
+See [Chrome Web Store releases](docs/chrome-publishing.md) for release-triggered submissions and the build-only/status actions.
