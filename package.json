@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "@wxt-dev/module-react": "latest",
+    "pdfjs-dist": "^6.5.438",
     "react": "latest",
     "react-dom": "latest",
     "wxt": "latest",
