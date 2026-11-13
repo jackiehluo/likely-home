@@ -27,6 +27,8 @@
 	</array>
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 	<key>KeychainAccessGroup</key>
 	<string>$(KEYCHAIN_GROUP_ID)</string>
 	<key>UILaunchScreen</key>
